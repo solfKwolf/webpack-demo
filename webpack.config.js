@@ -1,17 +1,33 @@
-//  自定义插件
-function HelloCompilationPlugin(options) {}
+/**
+ * 生成一个叫做 filelist.md 的新文件；文件内容是所有构建生成的文件的列表。
+ */
+function FileListPlugin(options) {}
 
-HelloCompilationPlugin.prototype.apply = function(compiler) {
+FileListPlugin.prototype.apply = function(compiler) {
+  compiler.plugin('emit', function(compilation, callback) {
+    // 在生成文件中，创建一个头部字符串：
+    var filelist = 'In this build:\n\n';
 
-  // 设置回调来访问 compilation 对象：
-  compiler.plugin("compilation", function(compilation) {
+    // 遍历所有编译过的资源文件，
+    // 对于每个文件名称，都添加一行内容。
+    for (var filename in compilation.assets) {
+      filelist += ('- '+ filename +'\n');
+    }
 
-    // 现在，设置回调来访问 compilation 中的步骤：
-    compilation.plugin("optimize", function() {
-      console.log("Assets are being optimized.");
-    });
+    // 将这个列表作为一个新的文件资源，插入到 webpack 构建中：
+    compilation.assets['filelist.md'] = {
+      source: function() {
+        return filelist;
+      },
+      size: function() {
+        return filelist.length;
+      }
+    };
+
+    callback();
   });
 };
+
 
 
 module.exports = {
@@ -26,6 +42,6 @@ module.exports = {
     publicPath: '/dist',  // 这个就不需要了,自动帮你引入好像 ./dist 跟 /dist 有很大区别
   },
   plugins: [
-    new HelloCompilationPlugin({options: true})
+    new FileListPlugin({options: true})
   ]
 }
