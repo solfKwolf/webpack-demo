@@ -1,11 +1,15 @@
 //  自定义插件
-function HelloWorldPlugin(options) {
-  // 使用 options 设置插件实例……
-}
+function HelloCompilationPlugin(options) {}
 
-HelloWorldPlugin.prototype.apply = function(compiler) {
-  compiler.plugin('done', function() {
-    console.log('Hello World!');
+HelloCompilationPlugin.prototype.apply = function(compiler) {
+
+  // 设置回调来访问 compilation 对象：
+  compiler.plugin("compilation", function(compilation) {
+
+    // 现在，设置回调来访问 compilation 中的步骤：
+    compilation.plugin("optimize", function() {
+      console.log("Assets are being optimized.");
+    });
   });
 };
 
@@ -22,6 +26,6 @@ module.exports = {
     publicPath: '/dist',  // 这个就不需要了,自动帮你引入好像 ./dist 跟 /dist 有很大区别
   },
   plugins: [
-    new HelloWorldPlugin({options: true})
+    new HelloCompilationPlugin({options: true})
   ]
 }
